@@ -1,5 +1,7 @@
 import React from "react"
 
+import "./CountButton.scss"
+
 interface IProps {
   delta: number
   callback: () => void
@@ -12,8 +14,8 @@ export const CountButton: React.FC<IProps> = ({
   disabled = false,
 }) => {
   return (
-    <button onClick={callback} disabled={disabled}>
-      +{Math.round((delta + Number.EPSILON) * 100) / 100}
+    <button className="CountButton" onClick={callback} disabled={disabled}>
+      +{Math.round((delta + Number.EPSILON) * 100) / 100} Kill
     </button>
   )
 }

@@ -7,6 +7,7 @@ export const units: TUnit[] = [
     label: "Soldier",
     power: 1,
     amount: 0,
+    amount_free: 0,
   },
   {
     id: "hunter",
@@ -14,5 +15,6 @@ export const units: TUnit[] = [
     label: "Hunter",
     power: 3,
     amount: 0,
+    amount_free: 0,
   },
 ]

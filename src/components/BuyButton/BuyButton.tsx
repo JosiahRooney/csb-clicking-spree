@@ -9,7 +9,7 @@ interface IProps {
   upgradeCallback: () => void
 }
 
-export const UpgradeButton: React.FC<IProps> = (props) => {
+export const BuyButton: React.FC<IProps> = (props) => {
   const {
     upgradeCost,
     text,

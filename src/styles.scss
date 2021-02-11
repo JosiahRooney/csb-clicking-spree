@@ -1,0 +1,14 @@
+.App {
+  font-family: sans-serif;
+
+  .action-row,
+  .kills-row {
+    display: flex;
+    margin-bottom: 1rem;
+  }
+
+  .kills-row {
+    justify-content: space-around;
+    align-items: center;
+  }
+}
