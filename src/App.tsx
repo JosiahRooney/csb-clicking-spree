@@ -4,23 +4,18 @@ import { CountButton } from "./CountButton"
 import { UpgradeButton } from "./UpgradeButton"
 
 import { upgrades } from "./upgrades"
-import { purchases } from "./purchases"
+import { units } from "./units"
+
+import { TUnit } from "./types/Unit.type"
 
 import "./styles.css"
-
-type TPurchase = {
-  id: string
-  amount: number
-  power: number
-  label: string
-}
 
 const initialState = {
   count: 0,
   totalCount: 0,
   delta: 1,
   upgradesPurchased: [],
-  purchasesPurchased: [],
+  unitsPurchased: [],
 }
 
 export default function App() {
@@ -30,12 +25,11 @@ export default function App() {
   const [upgradesPurchased, setUpgradesPurchased] = useState<string[]>(
     initialState.upgradesPurchased
   )
-  const [purchasesPurchased, setPurchasesPurchased] = useState<TPurchase[]>(
-    initialState.purchasesPurchased
+  const [unitsPurchased, setUnitsPurchased] = useState<TUnit[]>(
+    initialState.unitsPurchased
   )
 
   const increaseCount = (delta: number) => {
-    console.log({ delta, d: Math.round(delta * 100) / 100 })
     setTotalCount(totalCount + Math.round(delta * 100) / 100)
     setCount(count + Math.round(delta * 100) / 100)
   }
@@ -52,84 +46,83 @@ export default function App() {
     setTotalCount(initialState.totalCount)
     setDelta(initialState.delta)
     setUpgradesPurchased(initialState.upgradesPurchased)
-    setPurchasesPurchased(initialState.purchasesPurchased)
+    setUnitsPurchased(initialState.unitsPurchased)
   }
 
-  const upgradeMarkup = upgrades.map((upgrade) => {
-    const purchased = upgradesPurchased.includes(upgrade.id)
+  const upgradeMarkup = useMemo(() => {
+    return upgrades.map((upgrade) => {
+      const purchased = upgradesPurchased.includes(upgrade.id)
 
-    return (
-      <UpgradeButton
-        key={upgrade.id}
-        callback={() => decreaseCount(upgrade.cost)}
-        upgradeCallback={() =>
-          setUpgradesPurchased([upgrade.id, ...upgradesPurchased])
-        }
-        disabled={purchased || upgrade.cost > count}
-        purchased={purchased}
-        upgradeCost={upgrade.cost}
-        text={upgrade.label}
-      />
-    )
-  })
+      return (
+        <UpgradeButton
+          key={upgrade.id}
+          callback={() => decreaseCount(upgrade.cost)}
+          upgradeCallback={() =>
+            setUpgradesPurchased([upgrade.id, ...upgradesPurchased])
+          }
+          disabled={purchased || upgrade.cost > count}
+          purchased={purchased}
+          upgradeCost={upgrade.cost}
+          text={upgrade.label}
+        />
+      )
+    })
+  }, [count, decreaseCount, upgradesPurchased])
 
   const purchaseMarkup = useMemo(() => {
-    return purchases.map((purchase) => {
-      const purchased = purchasesPurchased.find(
-        (item) => item.id === purchase.id
-      )
-      const purchasedArray = [
-        ...purchasesPurchased.filter((item) => item.id !== purchase.id),
+    return units.map((unit) => {
+      const unitPurchased = unitsPurchased.find((item) => item.id === unit.id)
+      const unitPurchasedArray = [
+        ...unitsPurchased.filter((item) => item.id !== unit.id),
       ]
-      const totalOwned = (purchased && purchased.amount) || 0
+      const totalOwned = (unitPurchased && unitPurchased.amount) || 0
 
-      const costIncrease = purchased
+      const costIncrease = unitPurchased
         ? Math.round(
-            (purchase.cost * Math.pow(1.18, purchased.amount) * 100) / 100
+            (unit.cost * Math.pow(1.18, unitPurchased.amount) * 100) / 100
           )
-        : purchase.cost
+        : unit.cost
 
       const callbackLogic = () => {
-        if (purchased !== undefined) {
-          purchasedArray.push({
-            id: purchased.id,
-            label: purchased.label,
-            amount: purchased.amount + 1,
-            power: purchased.power,
+        if (unitPurchased !== undefined) {
+          unitPurchasedArray.push({
+            id: unitPurchased.id,
+            label: unitPurchased.label,
+            amount: unitPurchased.amount + 1,
+            power: unitPurchased.power,
+            cost: unitPurchased.cost,
           })
-          setPurchasesPurchased([...purchasedArray])
+          setUnitsPurchased([...unitPurchasedArray])
         } else {
-          setPurchasesPurchased([
+          setUnitsPurchased([
             {
-              id: purchase.id,
+              id: unit.id,
               amount: 1,
-              power: purchase.power,
-              label: purchase.label,
+              power: unit.power,
+              label: unit.label,
+              cost: unit.cost,
             },
-            ...purchasesPurchased,
+            ...unitsPurchased,
           ])
         }
       }
 
-      return totalCount > purchase.cost * 0.75 ? (
+      return totalCount > unit.cost * 0.75 ? (
         <UpgradeButton
-          key={purchase.id}
+          key={unit.id}
           callback={() => decreaseCount(costIncrease)}
           upgradeCallback={callbackLogic}
           disabled={count - costIncrease < 0}
           upgradeCost={costIncrease}
-          text={`${purchase.label}: +${purchase.power} TP (${totalOwned}) `}
+          text={`${unit.label}: +${unit.power} TP (${totalOwned}) `}
         />
       ) : null
     })
-  }, [purchasesPurchased, count, totalCount, decreaseCount])
+  }, [unitsPurchased, count, totalCount, decreaseCount])
 
   const totalPower = useMemo(() => {
-    return purchasesPurchased.reduce(
-      (acc, cur) => acc + cur.amount * cur.power,
-      0
-    )
-  }, [purchasesPurchased])
+    return unitsPurchased.reduce((acc, cur) => acc + cur.amount * cur.power, 0)
+  }, [unitsPurchased])
 
   useEffect(() => {
     setDelta((delta) => {
@@ -145,7 +138,7 @@ export default function App() {
 
   useEffect(() => {
     let delta = 0
-    purchasesPurchased.forEach(
+    unitsPurchased.forEach(
       (purchase) => (delta += purchase.amount * purchase.power)
     )
     upgrades.forEach((upgrade) => {
@@ -161,18 +154,22 @@ export default function App() {
     return () => {
       clearInterval(interval)
     }
-  }, [upgradesPurchased, purchasesPurchased])
+  }, [upgradesPurchased, unitsPurchased])
 
   return (
     <div className="App">
       <div>
         <button onClick={reset}>Reset</button>
       </div>
+
       <div>total kills: {Math.round(totalCount * 100) / 100}</div>
       <div className="count">Kills: {Math.round(count * 100) / 100}</div>
+
       <CountButton delta={delta} callback={() => increaseCount(delta)} />
+
       <div>+{Math.round(delta * 100) / 100} AP/click</div>
       <div>+{Math.round(totalPower * 100) / 100} TP/sec</div>
+
       {purchaseMarkup}
       {upgradeMarkup}
     </div>

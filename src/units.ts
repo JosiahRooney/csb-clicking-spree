@@ -1,21 +1,18 @@
-type TPurchase = {
-  cost: number
-  id: string
-  label: string
-  power: number
-}
+import { TUnit } from "./types/Unit.type"
 
-export const purchases: TPurchase[] = [
+export const units: TUnit[] = [
   {
     id: "soldier",
     cost: 15,
     label: "Soldier",
     power: 1,
+    amount: 0,
   },
   {
     id: "hunter",
     cost: 76,
     label: "Hunter",
     power: 3,
+    amount: 0,
   },
 ]
