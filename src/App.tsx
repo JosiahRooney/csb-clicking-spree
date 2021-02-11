@@ -237,15 +237,13 @@ export default function App() {
 
   useEffect(() => {
     // Click loop
-    setDelta((delta) => {
-      let _delta = delta
-      upgrades.forEach((upgrade) => {
-        if (upgradesPurchased.includes(upgrade.id) && upgrade.clickPower) {
-          _delta += delta * upgrade.clickPower
-        }
-      })
-      return _delta
+    let _delta = 1
+    upgrades.forEach((upgrade) => {
+      if (upgradesPurchased.includes(upgrade.id) && upgrade.clickPower) {
+        _delta += _delta * upgrade.clickPower
+      }
     })
+    setDelta(_delta)
   }, [upgradesPurchased])
 
   useEffect(() => {

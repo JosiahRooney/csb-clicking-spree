@@ -31,7 +31,7 @@ export const upgrades: IUpgrade[] = [
     clickPower: 0.1,
   },
   {
-    cost: 1,
+    cost: 1000,
     id: "faster_transports",
     label: "Faster Transports: 10% faster unit attack ",
     speed: 0.9,
