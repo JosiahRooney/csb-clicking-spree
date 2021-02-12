@@ -6,6 +6,7 @@ import { BuyButton } from "./components/BuyButton/BuyButton"
 import { upgrades } from "./upgrades"
 import { units } from "./units"
 import { buildings } from "./buildings"
+import levels from "./levels"
 
 import { TUnit } from "./types/Unit.type"
 import { TBuilding } from "./types/Building.type"
@@ -15,8 +16,10 @@ import "./styles.scss"
 const initialState = {
   count: 0,
   totalCount: 0,
-  delta: 1,
+  delta: 100,
   speed: 1000,
+  exp: 0,
+  level: 1,
   upgradesPurchased: [],
   unitsPurchased: [],
   buildingsPurchased: [],
@@ -27,6 +30,8 @@ export default function App() {
   const [count, setCount] = useState(initialState.count)
   const [delta, setDelta] = useState(initialState.delta)
   const [speed, setSpeed] = useState(initialState.speed)
+  const [exp, setExp] = useState(initialState.exp)
+  const [level, setLevel] = useState(initialState.level)
   const [upgradesPurchased, setUpgradesPurchased] = useState<string[]>(
     initialState.upgradesPurchased
   )
@@ -299,6 +304,16 @@ export default function App() {
     }
   }, [buildingsPurchased, buyUnit])
 
+  useEffect(() => {
+    setExp(totalCount)
+    levels.forEach((_level, index) => {
+      if (exp > _level.exp) {
+        setLevel(index)
+        return
+      }
+    })
+  }, [totalCount, exp])
+
   return (
     <div className="App">
       <div className="action-row">
@@ -317,6 +332,10 @@ export default function App() {
         <div>+{Math.round(delta * 100) / 100} K/click</div>
         <div>+{Math.round(totalPower * 100) / 100} K/sec</div>
         <div>Total: {Math.round(totalCount * 100) / 100}</div>
+      </div>
+
+      <div>
+        Exp: {exp} Level: {level}
       </div>
 
       <div>
